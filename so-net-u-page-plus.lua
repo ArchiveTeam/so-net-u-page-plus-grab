@@ -59,13 +59,20 @@ allowed = function(url)
     tested[s] = tested[s] + 1
   end
 
+  if string.match(url, "/////") then
+    return false
+  end
+
   local item_user_dir_escaped = string.gsub(item_user_dir, '%-', '%%-')
 
-  local a, b = string.match(url, "^https?://([^%.]+)%.upp%.so%-net%.ne%.jp/([0-9a-zA-Z%-_]+)")
+  local a, b = string.match(url, "^http://([^%.]+)%.upp%.so%-net%.ne%.jp/([0-9a-zA-Z%-_]+)")
   if a and b then
     if a == item_host and b == item_user_dir then
       return true
     else
+      if string.match(a, "^http://.*") then
+        a = string.gsub(a, "http://", "")
+      end
       discovered["userdir:" .. a .. "/" .. b] = true
     end
   end
@@ -250,13 +257,13 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
     io.stdout:flush()
     local maxtries = 12
     if not allowed(url["url"], nil) then
-      maxtries = 3
+      maxtries = 2
     end
     if tries >= maxtries then
       io.stdout:write("I give up...\n")
       io.stdout:flush()
       tries = 0
-      if maxtries == 3 then
+      if maxtries == 2 then
         return wget.actions.EXIT
       else
         return wget.actions.ABORT
@@ -287,11 +294,13 @@ wget.callbacks.finish = function(start_time, end_time, wall_time, numurls, total
   file:close()]]
   local items = nil
   for item, _ in pairs(discovered) do
-    print('found item', item)
-    if items == nil then
-      items = item
-    else
-      items = items .. "\0" .. item
+    if string.match(item, '^userdir:www%d%d%d/[^/]+$') then
+      print('found item', item)
+      if items == nil then
+        items = item
+      else
+        items = items .. "\0" .. item
+      end
     end
   end
   if items ~= nil then
