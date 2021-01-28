@@ -242,6 +242,9 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   end
 
   if status_code >= 200 and status_code <= 399 then
+    if downloaded[url["url"]] then
+      return wget.actions.EXIT
+    end
     downloaded[url["url"]] = true
   end
 
