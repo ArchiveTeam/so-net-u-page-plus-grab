@@ -97,7 +97,7 @@ wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_pars
   -- Recurses 1 step out from So-Net pages, plus to the requisites of those pages
   
   -- This will get all external links (including external page requisites)
-  if allowed(parenturl) then
+--[[  if allowed(parenturl) then
     --print("Recursing to " .. url .. " from " .. parenturl)
     external_links[url] = true
     addedtolist[url] = true
@@ -109,7 +109,7 @@ wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_pars
     --print("Getting requisite " .. url .. " from " .. parenturl)
     addedtolist[url] = true
     return true
-  end
+  end]]
 
   return false
 end
